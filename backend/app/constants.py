@@ -17,3 +17,6 @@ SEASONS: tuple[str, ...] = (
     "OND",
     "NDJ",
 )
+
+# Code de l'indice affiché par l'application (table climate_index).
+RONI_INDEX_CODE = "RONI"

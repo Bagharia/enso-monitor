@@ -4,6 +4,7 @@ import hashlib
 from datetime import date
 from pathlib import Path
 
+from app.constants import RONI_INDEX_CODE
 from app.db import SessionLocal
 from etl.extract import read_noaa_file
 from etl.load import get_or_create_climate_index, get_or_create_source, load_observations
@@ -33,7 +34,7 @@ def main() -> None:
     # Load — session.begin() : tout est validé ensemble, ou rien en cas d'erreur
     with SessionLocal() as session, session.begin():
         climate_index = get_or_create_climate_index(
-            session, code="RONI", name="Relative Oceanic Niño Index", unit="°C"
+            session, code=RONI_INDEX_CODE, name="Relative Oceanic Niño Index", unit="°C"
         )
         source = get_or_create_source(
             session, climate_index, provider="NOAA Climate Prediction Center", url=args.url

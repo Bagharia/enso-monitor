@@ -7,11 +7,19 @@ from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv())
 
 
-def database_url() -> str:
-    """Construit l'URL de connexion PostgreSQL à partir des variables POSTGRES_*."""
+def database_url(database_name: str | None = None) -> str:
+    """Construit l'URL de connexion PostgreSQL à partir des variables POSTGRES_*.
+
+    database_name permet de viser une autre base (ex. la base de test) avec les mêmes accès.
+    """
     user = os.environ["POSTGRES_USER"]
     password = os.environ["POSTGRES_PASSWORD"]
     host = os.getenv("POSTGRES_HOST", "localhost")
     port = os.getenv("POSTGRES_PORT", "5432")
-    db = os.environ["POSTGRES_DB"]
-    return f"postgresql+psycopg://{user}:{password}@{host}:{port}/{db}"
+    database_name = database_name or os.environ["POSTGRES_DB"]
+    return f"postgresql+psycopg://{user}:{password}@{host}:{port}/{database_name}"
+
+
+def cors_allowed_origins() -> list[str]:
+    """Adresses du front autorisées à appeler l'API (séparées par des virgules dans le .env)."""
+    return os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",")
