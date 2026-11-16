@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 # Colonnes du fichier RONI.ascii.txt : saison, année, anomalie.
-EXPECTED_COLUMNS = ["SEAS", "YR", "ANOM"]
+EXPECTED_COLUMNS = ("SEAS", "YR", "ANOM")
 
 
 class InvalidFileError(ValueError):
@@ -18,8 +18,8 @@ def read_noaa_file(file_path: Path) -> pd.DataFrame:
     dans transform.py, où les valeurs invalides sont détectées.
     """
     raw_rows = pd.read_csv(file_path, sep=r"\s+", dtype=str)
-    if list(raw_rows.columns) != EXPECTED_COLUMNS:
+    if tuple(raw_rows.columns) != EXPECTED_COLUMNS:
         raise InvalidFileError(
-            f"Colonnes attendues {EXPECTED_COLUMNS}, colonnes trouvées {list(raw_rows.columns)}"
+            f"Colonnes attendues {EXPECTED_COLUMNS}, colonnes trouvées {tuple(raw_rows.columns)}"
         )
     return raw_rows

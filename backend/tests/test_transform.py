@@ -11,14 +11,16 @@ def make_raw_rows(rows: list[tuple[str, str, str]]) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=["SEAS", "YR", "ANOM"])
 
 
-def test_removes_duplicates_and_invalid_rows():
+def test_removes_identical_duplicates_and_invalid_rows():
     raw_rows = make_raw_rows(
         [
             ("DJF", "1998", "2.13"),
-            ("DJF", "1998", "2.13"),  # doublon
+            ("DJF", "1998", "2.13"),  # doublon identique
             ("XYZ", "1998", "1.00"),  # saison inconnue
-            ("JFM", "abcd", "1.00"),  # année invalide
+            ("JFM", "abcd", "1.00"),  # année non numérique
+            ("JFM", "1998.5", "1.00"),  # année non entière
             ("FMA", "1998", "99"),  # valeur hors plage
+            ("MAM", "1998", "2.137"),  # plus de 2 décimales
             ("JFM", "1998", "1.82"),
         ]
     )
@@ -26,7 +28,22 @@ def test_removes_duplicates_and_invalid_rows():
     observations, issues = clean_observations(raw_rows)
 
     assert list(observations["season"]) == ["DJF", "JFM"]
-    assert len(issues) == 4
+    assert len(issues) == 6
+
+
+def test_conflicting_values_exclude_the_season():
+    raw_rows = make_raw_rows(
+        [
+            ("FMA", "1998", "1.00"),
+            ("FMA", "1998", "1.50"),  # même saison, valeur différente
+            ("MAM", "1998", "0.81"),
+        ]
+    )
+
+    observations, issues = clean_observations(raw_rows)
+
+    assert list(observations["season"]) == ["MAM"]
+    assert issues == ["Valeurs contradictoires, saison écartée : FMA 1998 (1.00 / 1.50)"]
 
 
 def test_period_date_is_center_month_of_season():
