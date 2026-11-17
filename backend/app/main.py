@@ -3,11 +3,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import cors_allowed_origins
-from app.routes import observations
+from app.routes import episodes, observations
 
 app = FastAPI(
     title="ENSO Monitor API",
-    description="Indice NOAA RONI (El Niño / La Niña) : observations filtrées par période.",
+    description="Indice NOAA RONI (El Niño / La Niña) : observations par période et épisodes.",
     version="1.0.0",
 )
 
@@ -22,6 +22,7 @@ app.add_middleware(
 API_V1_PREFIX = "/api/v1"
 
 app.include_router(observations.router, prefix=API_V1_PREFIX)
+app.include_router(episodes.router, prefix=API_V1_PREFIX)
 
 
 @app.get(f"{API_V1_PREFIX}/health", tags=["health"])

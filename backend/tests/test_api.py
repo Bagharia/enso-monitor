@@ -5,10 +5,10 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session, sessionmaker
 
+from app import queries
 from app.db import get_session
 from app.main import app
 from app.models import ClimateIndex
-from app.routes import observations as observations_route
 
 
 def test_returns_observations_within_period(client: TestClient):
@@ -59,7 +59,8 @@ def test_returns_404_when_index_has_no_import_run(
             yield session
 
         app.dependency_overrides[get_session] = get_uncommitted_session
-        monkeypatch.setattr(observations_route, "RONI_INDEX_CODE", "NO_IMPORT")
+        # queries.py cherche l'indice par son code : on lui fait chercher NO_IMPORT.
+        monkeypatch.setattr(queries, "RONI_INDEX_CODE", "NO_IMPORT")
 
         response = client.get("/api/v1/observations")
         session.rollback()

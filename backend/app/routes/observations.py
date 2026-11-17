@@ -1,18 +1,16 @@
 """Route GET /api/v1/observations : les valeurs de l'indice sur une période."""
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.constants import RONI_INDEX_CODE
 from app.db import get_session
-from app.models import ClimateIndex, ImportRun, Observation, Source
-from app.schemas import ObservationListResponse, ObservationResponse, SourceResponse
+from app.models import Observation
+from app.queries import get_climate_index_or_404, get_latest_source_or_404
+from app.schemas import ObservationListResponse, ObservationResponse
 
 router = APIRouter(prefix="/observations", tags=["observations"])
-
-NO_DATA_DETAIL = "Aucune donnée RONI en base : lancer d'abord l'import (python -m etl)."
 
 
 @router.get("", response_model=ObservationListResponse)
@@ -30,23 +28,8 @@ def list_observations(
             detail="Période invalide : la date de début doit précéder la date de fin.",
         )
 
-    climate_index = session.scalar(
-        select(ClimateIndex).where(ClimateIndex.code == RONI_INDEX_CODE)
-    )
-    if climate_index is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_DATA_DETAIL)
-
-    # La source affichée est celle du dernier import de cet indice.
-    latest_import_run = session.scalar(
-        select(ImportRun)
-        .join(Source)
-        .where(Source.climate_index_id == climate_index.id)
-        .order_by(ImportRun.id.desc())
-        .limit(1)
-    )
-    # Indice présent mais jamais importé : même réponse que s'il n'y avait rien en base.
-    if latest_import_run is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_DATA_DETAIL)
+    climate_index = get_climate_index_or_404(session)
+    source = get_latest_source_or_404(session, climate_index)
 
     # Requête paramétrée : start et end sont envoyés à PostgreSQL à part, jamais collés
     # dans le texte SQL, ce qui empêche toute injection SQL.
@@ -61,21 +44,11 @@ def list_observations(
         index_code=climate_index.code,
         index_name=climate_index.name,
         unit=climate_index.unit,
-        source=SourceResponse(
-            provider=latest_import_run.source.provider,
-            url=latest_import_run.source.url,
-            extracted_on=latest_import_run.extracted_on,
-        ),
+        source=source,
         start=start,
         end=end,
         count=len(observations),
         observations=[
-            ObservationResponse(
-                season=observation.season,
-                year=observation.year,
-                period_date=observation.period_date,
-                value=float(observation.value),
-            )
-            for observation in observations
+            ObservationResponse.from_observation(observation) for observation in observations
         ],
     )
