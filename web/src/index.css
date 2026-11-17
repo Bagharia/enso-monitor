@@ -1,0 +1,103 @@
+/* Styles volontairement sobres : lisibilité, contraste et navigation au clavier. */
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.period-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #c4c4c4;
+  border-radius: 6px;
+}
+
+select {
+  font: inherit;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Focus toujours visible pour la navigation au clavier. */
+:focus-visible {
+  outline: 3px solid #1f5fa8;
+  outline-offset: 2px;
+}
+
+.chart {
+  margin: 0;
+}
+
+.chart figcaption,
+.source-note {
+  font-size: 0.9rem;
+  color: #444444;
+}
+
+.error {
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #b4232a;
+  background: #fbeaea;
+}
+
+table {
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+th,
+td {
+  padding: 0.25rem 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.25rem;
+}
+
+/* Sur petit écran, un tableau trop large défile horizontalement au lieu de déborder. */
+.table-scroll {
+  overflow-x: auto;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.4rem;
+  }
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 0.5rem 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  border-top: 2px dashed;
+}
