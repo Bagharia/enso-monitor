@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 from app.db import get_session
 from app.episodes import EPISODE_THRESHOLD, MIN_EPISODE_SEASONS, Phase, find_episodes
 from app.models import Observation
-from app.queries import get_climate_index_or_404, get_latest_source_or_404
-from app.schemas import EpisodeListResponse, EpisodeResponse
+from app.queries import get_climate_index_or_404, get_latest_import_run_or_404
+from app.schemas import EpisodeListResponse, EpisodeResponse, SourceResponse
 
 router = APIRouter(prefix="/episodes", tags=["episodes"])
 
@@ -20,7 +20,7 @@ def list_episodes(
     """Retourne les épisodes de la phase demandée, du plus ancien au plus récent."""
     # Phase inconnue (ex. "neutre") : FastAPI répond 422 tout seul grâce au type Literal.
     climate_index = get_climate_index_or_404(session)
-    source = get_latest_source_or_404(session, climate_index)
+    latest_import_run = get_latest_import_run_or_404(session, climate_index)
 
     observations = session.scalars(
         select(Observation)
@@ -31,10 +31,10 @@ def list_episodes(
     return EpisodeListResponse(
         index_code=climate_index.code,
         unit=climate_index.unit,
-        source=source,
+        source=SourceResponse.from_import_run(latest_import_run),
         phase=phase,
-        threshold=float(EPISODE_THRESHOLD),
-        min_duration_seasons=MIN_EPISODE_SEASONS,
+        episode_threshold=float(EPISODE_THRESHOLD),
+        min_episode_seasons=MIN_EPISODE_SEASONS,
         episodes=[
             EpisodeResponse.from_episode(episode)
             for episode in find_episodes(observations, phase)

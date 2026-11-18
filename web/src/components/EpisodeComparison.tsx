@@ -15,10 +15,12 @@ import { compareEpisodes, episodeLabel } from "../episodeComparison";
 import { formatAxisValue, formatValue } from "../format";
 import type { EpisodeListResponse, EpisodeResponse } from "../types";
 
-// Épisodes comparés par défaut : les deux El Niño les plus forts de la série (choix du projet).
+// Épisodes comparés par défaut : choix du projet, deux El Niño forts à 18 ans d'écart.
 const DEFAULT_START_YEARS = [1997, 2015] as const;
-const FIRST_COLOR = "#b4232a";
-const SECOND_COLOR = "#1f5fa8";
+const EPISODE_A_COLOR = "#b4232a";
+const EPISODE_B_COLOR = "#1f5fa8";
+const THRESHOLD_COLOR = "#666666";
+const AXIS_STEP = 0.5; // une graduation tous les 0,5 °C, comme la courbe principale
 
 interface EpisodeComparisonProps {
   episodeList: EpisodeListResponse;
@@ -30,13 +32,14 @@ function defaultEpisodeIndex(episodes: EpisodeResponse[], startYear: number, fal
 }
 
 export function EpisodeComparison({ episodeList }: EpisodeComparisonProps) {
-  const { episodes, unit, threshold, min_duration_seasons } = episodeList;
-  const firstSelectId = useId();
-  const secondSelectId = useId();
-  const [firstIndex, setFirstIndex] = useState(() =>
+  const { episodes, unit, episode_threshold, min_episode_seasons } = episodeList;
+  const titleId = useId();
+  const episodeASelectId = useId();
+  const episodeBSelectId = useId();
+  const [episodeAIndex, setEpisodeAIndex] = useState(() =>
     defaultEpisodeIndex(episodes, DEFAULT_START_YEARS[0], 0),
   );
-  const [secondIndex, setSecondIndex] = useState(() =>
+  const [episodeBIndex, setEpisodeBIndex] = useState(() =>
     defaultEpisodeIndex(episodes, DEFAULT_START_YEARS[1], episodes.length - 1),
   );
 
@@ -44,29 +47,38 @@ export function EpisodeComparison({ episodeList }: EpisodeComparisonProps) {
     return <p>Pas assez d'épisodes détectés pour faire une comparaison.</p>;
   }
 
-  const first = episodes[firstIndex];
-  const second = episodes[secondIndex];
+  const episodeA = episodes[episodeAIndex];
+  const episodeB = episodes[episodeBIndex];
   const comparedEpisodes = [
-    { letter: "A", episode: first },
-    { letter: "B", episode: second },
+    { letter: "A", episode: episodeA },
+    { letter: "B", episode: episodeB },
   ];
-  const firstLabel = episodeLabel(first);
-  const secondLabel = episodeLabel(second);
+  const episodeALabel = episodeLabel(episodeA);
+  const episodeBLabel = episodeLabel(episodeB);
   const { findings, limits } = compareEpisodes(
-    first,
-    second,
+    episodeA,
+    episodeB,
     unit,
-    threshold,
-    min_duration_seasons,
+    episode_threshold,
+    min_episode_seasons,
   );
 
   // Courbes alignées sur la 1re saison de chaque épisode : on compare leur forme, pas leur date.
-  const longestDuration = Math.max(first.duration_seasons, second.duration_seasons);
+  const longestDuration = Math.max(episodeA.duration_seasons, episodeB.duration_seasons);
   const alignedRows = Array.from({ length: longestDuration }, (_, position) => ({
     seasonNumber: position + 1,
-    first: first.observations[position]?.value,
-    second: second.observations[position]?.value,
+    episodeA: episodeA.observations[position]?.value,
+    episodeB: episodeB.observations[position]?.value,
   }));
+
+  // Axe vertical de 0 au plus haut pic arrondi au demi-degré supérieur, graduation tous les
+  // 0,5 °C : le seuil +0,5 °C a toujours la sienne (même logique qu'ObservationChart).
+  const highestPeak = Math.max(episodeA.peak.value, episodeB.peak.value, AXIS_STEP);
+  const axisLimit = Math.ceil(highestPeak / AXIS_STEP) * AXIS_STEP;
+  const axisTicks = Array.from(
+    { length: Math.round(axisLimit / AXIS_STEP) + 1 },
+    (_, position) => position * AXIS_STEP,
+  );
 
   const episodeOptions = episodes.map((episode, position) => (
     <option key={episode.start.period_date} value={position}>
@@ -75,24 +87,24 @@ export function EpisodeComparison({ episodeList }: EpisodeComparisonProps) {
   ));
 
   return (
-    <section className="episode-comparison" aria-labelledby="comparison-title">
-      <h2 id="comparison-title">Comparer deux épisodes El Niño</h2>
+    <section className="episode-comparison" aria-labelledby={titleId}>
+      <h2 id={titleId}>Comparer deux épisodes El Niño</h2>
 
       <fieldset className="period-filter">
         <legend>Épisodes comparés</legend>
-        <label htmlFor={firstSelectId}>Épisode A</label>
+        <label htmlFor={episodeASelectId}>Épisode A</label>
         <select
-          id={firstSelectId}
-          value={firstIndex}
-          onChange={(event) => setFirstIndex(Number(event.target.value))}
+          id={episodeASelectId}
+          value={episodeAIndex}
+          onChange={(event) => setEpisodeAIndex(Number(event.target.value))}
         >
           {episodeOptions}
         </select>
-        <label htmlFor={secondSelectId}>Épisode B</label>
+        <label htmlFor={episodeBSelectId}>Épisode B</label>
         <select
-          id={secondSelectId}
-          value={secondIndex}
-          onChange={(event) => setSecondIndex(Number(event.target.value))}
+          id={episodeBSelectId}
+          value={episodeBIndex}
+          onChange={(event) => setEpisodeBIndex(Number(event.target.value))}
         >
           {episodeOptions}
         </select>
@@ -144,7 +156,8 @@ export function EpisodeComparison({ episodeList }: EpisodeComparisonProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="seasonNumber" />
               <YAxis
-                domain={[0, "auto"]}
+                domain={[0, axisLimit]}
+                ticks={axisTicks}
                 tickFormatter={(value: number) => formatAxisValue(value, unit)}
                 width={72}
               />
@@ -152,20 +165,20 @@ export function EpisodeComparison({ episodeList }: EpisodeComparisonProps) {
                 labelFormatter={(seasonNumber) => `Saison n° ${seasonNumber}`}
                 formatter={(value, name) => [
                   formatValue(Number(value), unit),
-                  name === "first" ? firstLabel : secondLabel,
+                  name === "episodeA" ? episodeALabel : episodeBLabel,
                 ]}
               />
-              <ReferenceLine y={threshold} stroke="#666666" strokeDasharray="6 4" />
+              <ReferenceLine y={episode_threshold} stroke={THRESHOLD_COLOR} strokeDasharray="6 4" />
               <Line
-                dataKey="first"
-                stroke={FIRST_COLOR}
+                dataKey="episodeA"
+                stroke={EPISODE_A_COLOR}
                 strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}
               />
               <Line
-                dataKey="second"
-                stroke={SECOND_COLOR}
+                dataKey="episodeB"
+                stroke={EPISODE_B_COLOR}
                 strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}
@@ -177,20 +190,20 @@ export function EpisodeComparison({ episodeList }: EpisodeComparisonProps) {
           <li>
             <span
               className="legend-line"
-              style={{ borderTopColor: FIRST_COLOR, borderTopStyle: "solid" }}
+              style={{ borderTopColor: EPISODE_A_COLOR, borderTopStyle: "solid" }}
             />
-            A : {firstLabel}
+            A : {episodeALabel}
           </li>
           <li>
             <span
               className="legend-line"
-              style={{ borderTopColor: SECOND_COLOR, borderTopStyle: "solid" }}
+              style={{ borderTopColor: EPISODE_B_COLOR, borderTopStyle: "solid" }}
             />
-            B : {secondLabel}
+            B : {episodeBLabel}
           </li>
           <li>
-            <span className="legend-line" style={{ borderTopColor: "#666666" }} />
-            Seuil El Niño ({formatValue(threshold, unit)})
+            <span className="legend-line" style={{ borderTopColor: THRESHOLD_COLOR }} />
+            Seuil El Niño ({formatValue(episode_threshold, unit)})
           </li>
         </ul>
         <figcaption>

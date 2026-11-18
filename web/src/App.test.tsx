@@ -33,8 +33,8 @@ function fakeApi(url: string): Response {
       unit: "°C",
       source: SOURCE,
       phase: "el_nino",
-      threshold: 0.5,
-      min_duration_seasons: 5,
+      episode_threshold: 0.5,
+      min_episode_seasons: 5,
       episodes: [],
     };
     return new Response(JSON.stringify(emptyEpisodes), { status: 200 });
@@ -75,7 +75,7 @@ test("updates displayed values when the period changes", async () => {
   await user.selectOptions(screen.getByLabelText("De"), "2010");
 
   // L'API est rappelée avec la nouvelle période, et seule la valeur de 2015 reste.
-  expect(fetchMock).toHaveBeenCalledWith(
+  expect(fetchMock).toHaveBeenLastCalledWith(
     expect.stringContaining("start=2010-01-01"),
     expect.anything(),
   );

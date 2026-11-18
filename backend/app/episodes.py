@@ -29,15 +29,15 @@ class Episode:
     """Une suite de saisons consécutives au-delà du seuil."""
 
     phase: Phase
-    seasons: tuple[SeasonalValue, ...]
+    seasonal_values: tuple[SeasonalValue, ...]
     is_ongoing: bool  # True si l'épisode touche la dernière valeur connue : il peut continuer
 
     @property
     def peak(self) -> SeasonalValue:
         """La saison la plus intense : la plus chaude pour El Niño, la plus froide pour La Niña."""
         if self.phase == "el_nino":
-            return max(self.seasons, key=lambda seasonal_value: seasonal_value.value)
-        return min(self.seasons, key=lambda seasonal_value: seasonal_value.value)
+            return max(self.seasonal_values, key=lambda seasonal_value: seasonal_value.value)
+        return min(self.seasonal_values, key=lambda seasonal_value: seasonal_value.value)
 
 
 def is_beyond_threshold(value: Decimal, phase: Phase) -> bool:

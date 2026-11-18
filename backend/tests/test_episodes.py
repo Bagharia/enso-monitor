@@ -37,7 +37,9 @@ def test_detects_episode_of_at_least_five_consecutive_seasons():
     episodes = find_episodes(series, "el_nino")
 
     assert len(episodes) == 1
-    assert [value.season for value in episodes[0].seasons] == ["JFM", "FMA", "MAM", "AMJ", "MJJ"]
+    assert [seasonal_value.season for seasonal_value in episodes[0].seasonal_values] == [
+        "JFM", "FMA", "MAM", "AMJ", "MJJ",
+    ]
     assert episodes[0].peak.value == Decimal("0.90")
     assert episodes[0].is_ongoing is False
 

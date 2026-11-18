@@ -5,6 +5,7 @@ from typing import Self
 from pydantic import BaseModel
 
 from app.episodes import Episode, Phase, SeasonalValue
+from app.models import ImportRun
 
 
 class SourceResponse(BaseModel):
@@ -13,6 +14,14 @@ class SourceResponse(BaseModel):
     provider: str
     url: str
     extracted_on: date
+
+    @classmethod
+    def from_import_run(cls, import_run: ImportRun) -> Self:
+        return cls(
+            provider=import_run.source.provider,
+            url=import_run.source.url,
+            extracted_on=import_run.extracted_on,
+        )
 
 
 class ObservationResponse(BaseModel):
@@ -61,14 +70,14 @@ class EpisodeResponse(BaseModel):
     def from_episode(cls, episode: Episode) -> Self:
         return cls(
             phase=episode.phase,
-            start=ObservationResponse.from_observation(episode.seasons[0]),
-            end=ObservationResponse.from_observation(episode.seasons[-1]),
+            start=ObservationResponse.from_observation(episode.seasonal_values[0]),
+            end=ObservationResponse.from_observation(episode.seasonal_values[-1]),
             peak=ObservationResponse.from_observation(episode.peak),
-            duration_seasons=len(episode.seasons),
+            duration_seasons=len(episode.seasonal_values),
             is_ongoing=episode.is_ongoing,
             observations=[
                 ObservationResponse.from_observation(seasonal_value)
-                for seasonal_value in episode.seasons
+                for seasonal_value in episode.seasonal_values
             ],
         )
 
@@ -80,6 +89,6 @@ class EpisodeListResponse(BaseModel):
     unit: str
     source: SourceResponse
     phase: Phase
-    threshold: float  # seuil en valeur absolue (°C)
-    min_duration_seasons: int
+    episode_threshold: float  # seuil en valeur absolue (°C)
+    min_episode_seasons: int
     episodes: list[EpisodeResponse]

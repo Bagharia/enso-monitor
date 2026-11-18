@@ -7,8 +7,8 @@ def test_returns_el_nino_episodes(client: TestClient):
 
     assert response.status_code == 200
     body = response.json()
-    assert body["threshold"] == 0.5
-    assert body["min_duration_seasons"] == 5
+    assert body["episode_threshold"] == 0.5
+    assert body["min_episode_seasons"] == 5
     # Base de test : année 1997 seulement, au-dessus de +0,5 °C d'AMJ (0.83) à NDJ (2.28).
     [episode] = body["episodes"]
     assert (episode["start"]["season"], episode["end"]["season"]) == ("AMJ", "NDJ")

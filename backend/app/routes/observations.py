@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 
 from app.db import get_session
 from app.models import Observation
-from app.queries import get_climate_index_or_404, get_latest_source_or_404
-from app.schemas import ObservationListResponse, ObservationResponse
+from app.queries import get_climate_index_or_404, get_latest_import_run_or_404
+from app.schemas import ObservationListResponse, ObservationResponse, SourceResponse
 
 router = APIRouter(prefix="/observations", tags=["observations"])
 
@@ -29,7 +29,7 @@ def list_observations(
         )
 
     climate_index = get_climate_index_or_404(session)
-    source = get_latest_source_or_404(session, climate_index)
+    latest_import_run = get_latest_import_run_or_404(session, climate_index)
 
     # Requête paramétrée : start et end sont envoyés à PostgreSQL à part, jamais collés
     # dans le texte SQL, ce qui empêche toute injection SQL.
@@ -44,7 +44,7 @@ def list_observations(
         index_code=climate_index.code,
         index_name=climate_index.name,
         unit=climate_index.unit,
-        source=source,
+        source=SourceResponse.from_import_run(latest_import_run),
         start=start,
         end=end,
         count=len(observations),

@@ -41,8 +41,8 @@ export interface EpisodeListResponse {
   unit: string;
   source: SourceResponse;
   phase: Phase;
-  threshold: number; // seuil en valeur absolue (°C)
-  min_duration_seasons: number;
+  episode_threshold: number; // seuil en valeur absolue (°C)
+  min_episode_seasons: number;
   episodes: EpisodeResponse[];
 }
 
