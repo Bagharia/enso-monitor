@@ -3,7 +3,7 @@
 import { formatGap, formatValue } from "./format";
 import type { EpisodeResponse, ObservationResponse } from "./types";
 
-// En dessous de cet écart, deux pics sont jugés comparables (même ordre que les arrondis NOAA).
+// Écart sous lequel on ne conclut pas à une différence entre deux pics (choix du projet).
 const COMPARABLE_PEAK_GAP = 0.1;
 
 export interface ComparisonText {

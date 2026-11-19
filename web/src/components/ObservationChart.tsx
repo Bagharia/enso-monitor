@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { axisTicks, roundUpToAxisStep } from "../chartAxis";
 import { formatAxisValue, formatValue } from "../format";
 import type { ObservationResponse } from "../types";
 
@@ -19,7 +20,6 @@ const LA_NINA_THRESHOLD = -0.5;
 const ANOMALY_COLOR = "#222222";
 const EL_NINO_COLOR = "#b4232a";
 const LA_NINA_COLOR = "#1f5fa8";
-const AXIS_STEP = 0.5; // une graduation tous les 0,5 °C
 
 interface ObservationChartProps {
   observations: ObservationResponse[];
@@ -40,12 +40,7 @@ export function ObservationChart({ observations, indexCode, unit }: ObservationC
   // Axe vertical symétrique autour de 0, arrondi au demi-degré supérieur :
   // El Niño (au-dessus) et La Niña (en dessous) sont dessinés à la même échelle.
   const largestDeviation = Math.max(Math.abs(highest.value), Math.abs(lowest.value), 1);
-  const axisLimit = Math.ceil(largestDeviation / AXIS_STEP) * AXIS_STEP;
-  // Graduations régulières tous les 0,5 °C : le 0 et les deux seuils ont toujours la leur.
-  const axisTicks = Array.from(
-    { length: Math.round((2 * axisLimit) / AXIS_STEP) + 1 },
-    (_, position) => -axisLimit + position * AXIS_STEP,
-  );
+  const axisLimit = roundUpToAxisStep(largestDeviation);
 
   // Résumé textuel affiché sous la courbe : c'est aussi ce que lit un lecteur d'écran.
   const summary =
@@ -68,7 +63,7 @@ export function ObservationChart({ observations, indexCode, unit }: ObservationC
             <XAxis dataKey="period_date" tickFormatter={(date: string) => date.slice(0, 4)} />
             <YAxis
               domain={[-axisLimit, axisLimit]}
-              ticks={axisTicks}
+              ticks={axisTicks(-axisLimit, axisLimit)}
               tickFormatter={(value: number) => formatAxisValue(value, unit)}
               width={72}
             />

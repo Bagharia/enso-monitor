@@ -11,6 +11,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { AXIS_STEP, axisTicks, roundUpToAxisStep } from "../chartAxis";
 import { compareEpisodes, episodeLabel } from "../episodeComparison";
 import { formatAxisValue, formatValue } from "../format";
 import type { EpisodeListResponse, EpisodeResponse } from "../types";
@@ -20,7 +21,6 @@ const DEFAULT_START_YEARS = [1997, 2015] as const;
 const EPISODE_A_COLOR = "#b4232a";
 const EPISODE_B_COLOR = "#1f5fa8";
 const THRESHOLD_COLOR = "#666666";
-const AXIS_STEP = 0.5; // une graduation tous les 0,5 °C, comme la courbe principale
 
 interface EpisodeComparisonProps {
   episodeList: EpisodeListResponse;
@@ -74,11 +74,7 @@ export function EpisodeComparison({ episodeList }: EpisodeComparisonProps) {
   // Axe vertical de 0 au plus haut pic arrondi au demi-degré supérieur, graduation tous les
   // 0,5 °C : le seuil +0,5 °C a toujours la sienne (même logique qu'ObservationChart).
   const highestPeak = Math.max(episodeA.peak.value, episodeB.peak.value, AXIS_STEP);
-  const axisLimit = Math.ceil(highestPeak / AXIS_STEP) * AXIS_STEP;
-  const axisTicks = Array.from(
-    { length: Math.round(axisLimit / AXIS_STEP) + 1 },
-    (_, position) => position * AXIS_STEP,
-  );
+  const axisLimit = roundUpToAxisStep(highestPeak);
 
   const episodeOptions = episodes.map((episode, position) => (
     <option key={episode.start.period_date} value={position}>
@@ -157,7 +153,7 @@ export function EpisodeComparison({ episodeList }: EpisodeComparisonProps) {
               <XAxis dataKey="seasonNumber" />
               <YAxis
                 domain={[0, axisLimit]}
-                ticks={axisTicks}
+                ticks={axisTicks(0, axisLimit)}
                 tickFormatter={(value: number) => formatAxisValue(value, unit)}
                 width={72}
               />
