@@ -1,0 +1,24 @@
+# Caddy : porte d'entrée unique du site.
+# - /api/*  -> transmis à l'API (service "api" du compose, port 8000)
+# - le reste -> fichiers du front (dossier /srv)
+# SITE_ADDRESS vaut ":80" en local (HTTP) ou un nom de domaine sur VPS (HTTPS automatique).
+
+{$SITE_ADDRESS::80} {
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+}

@@ -1,3 +1,15 @@
+# ENSO Monitor : base, API, import (ETL) et front servi par Caddy.
+# Local :  docker compose up -d --build   puis   docker compose run --rm etl
+# VPS   :  même fichier, avec SITE_ADDRESS=ton-domaine.fr dans le .env (HTTPS automatique).
+
+# Variables communes à l'API et à l'ETL (même image Python, même base).
+x-backend-environment: &backend-environment
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  POSTGRES_HOST: db # nom du service : Docker le résout en adresse sur son réseau interne
+  POSTGRES_PORT: "5432" # port interne au réseau Docker, toujours 5432
+
 services:
   db:
     image: postgres:17-alpine
@@ -6,6 +18,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
+      # Accessible depuis ton Mac seulement (outils, tests). À retirer sur un VPS.
       - "127.0.0.1:${POSTGRES_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -15,5 +28,47 @@ services:
       timeout: 3s
       retries: 10
 
+  api:
+    build: ./backend
+    environment:
+      <<: *backend-environment
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      # L'image Python n'a pas curl : on appelle la route de santé avec Python.
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  etl:
+    build: ./backend
+    profiles: ["tools"] # ne démarre pas avec "up" : se lance à la demande (docker compose run)
+    environment: *backend-environment
+    depends_on:
+      api:
+        condition: service_healthy # l'API applique les migrations au démarrage
+    command: ["python", "-m", "etl", "--extracted-on", "2026-11-14"]
+
+  web:
+    build: ./web
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80} # :80 en local (HTTP), un domaine sur VPS (HTTPS)
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+      - "${HTTPS_PORT:-8443}:443"
+    volumes:
+      - caddy_data:/data # certificats HTTPS conservés entre deux redémarrages
+    depends_on:
+      api:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  caddy_data:
