@@ -1,5 +1,5 @@
-// Test front : changer la période actualise les valeurs affichées.
-import { render, screen, within } from "@testing-library/react";
+// Tests front : changer la période actualise les valeurs ; une erreur d'API peut être réessayée.
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test, vi } from "vitest";
 
@@ -58,6 +58,7 @@ function fakeApi(url: string): Response {
 }
 
 afterEach(() => {
+  cleanup(); // retire la page rendue par le test précédent
   vi.unstubAllGlobals();
 });
 
@@ -83,4 +84,30 @@ test("updates displayed values when the period changes", async () => {
   await vi.waitFor(() => expect(within(updatedTable).getAllByRole("row")).toHaveLength(2));
   expect(within(updatedTable).getByText("2015")).toBeInTheDocument();
   expect(within(updatedTable).queryByText("1997")).not.toBeInTheDocument();
+});
+
+test("shows the API error and reloads the values on retry", async () => {
+  // 1re demande d'observations : l'API répond 503 (base arrêtée). Ensuite : réponse normale.
+  let isDatabaseDown = true;
+  const fetchMock = vi.fn(async (url: string) => {
+    if (isDatabaseDown && url.includes("/observations")) {
+      isDatabaseDown = false;
+      const detail = "Base de données indisponible : réessayez dans quelques instants.";
+      return new Response(JSON.stringify({ detail }), { status: 503 });
+    }
+    return fakeApi(url);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  const user = userEvent.setup();
+  render(<App />);
+
+  // Le message de l'API est affiché, avec un bouton pour réessayer.
+  const [alert] = await screen.findAllByRole("alert");
+  expect(alert).toHaveTextContent("Base de données indisponible");
+
+  await user.click(within(alert).getByRole("button", { name: "Réessayer" }));
+
+  // La même période est redemandée, et les valeurs s'affichent.
+  const table = await screen.findByRole("table");
+  expect(within(table).getAllByRole("row")).toHaveLength(3);
 });
