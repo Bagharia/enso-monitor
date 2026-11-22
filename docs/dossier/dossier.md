@@ -43,7 +43,7 @@ Les règles de lecture sont les mêmes pour les deux : **≥ +0,5 °C** (El Niñ
 
 ## Périmètre du MVP et limites
 
-- **Dans le périmètre** : import NOAA tracé et sans doublon, API documentée et versionnée, courbe filtrable, tableau accessible, comparaison de deux épisodes, 3 tests minimaux (au final 20), déploiement documenté et vérifié en local avec Docker.
+- **Dans le périmètre** : import NOAA tracé et sans doublon, API documentée et versionnée, courbe filtrable, tableau accessible, comparaison de deux épisodes, 3 tests minimaux (au final 24), déploiement documenté et vérifié en local avec Docker.
 - **Hors périmètre (choisi)** : espace d'administration, export, carte ERA5, prévisions, autres indices.
 - **Limites du sujet** : un indice mesure **l'intensité et la durée** d'une anomalie de température, **pas ses conséquences** (pluies, sécheresses, dégâts). L'application ne fait aucune prévision.
 
@@ -74,7 +74,7 @@ La priorisation suit **MoSCoW** : le délai est fixe et le sujet distingue déj�
 
 1. **Explorer une période** : le visiteur choisit « de 1997 à 1998 » → la courbe, le résumé texte et le tableau se mettent à jour. La liste « à » ne propose que des années postérieures au début : **l'erreur est rendue impossible** plutôt que signalée.
 2. **Comparer deux épisodes** : 1997-98 et 2015-16 sont proposés par défaut (deux El Niño forts à 18 ans d'écart) ; le visiteur peut en choisir d'autres parmi les 22 épisodes détectés.
-3. **Parcours d'erreur** : si l'API ne répond pas, un message explicite (« Impossible de contacter l'API… ») remplace la courbe, annoncé aux lecteurs d'écran (`role="alert"`).
+3. **Parcours d'erreur** : si l'API ou la base ne répondent pas, un message explicite (« Base de données indisponible… ») remplace la courbe, annoncé aux lecteurs d'écran (`role="alert"`), avec un bouton **Réessayer** qui relance la même demande.
 
 ## Wireframe et maquette finale
 
@@ -170,7 +170,7 @@ flowchart LR
 | J2 · lun. 16/11 | Modèle de données + ETL + test | Modèle et migration (`63989e7`), ETL complet (`697d36a`, `5abc0d1`), correction de l'ETL (`da4bc9d`), **API et ses tests** (`44b2c49`, `d1ad09d`), puis **front React** vérifié dans le navigateur en fin de soirée | Avance prise sur J3 |
 | J3 · mar. 17/11 | API + front | Comparaison des épisodes (US4) : route `episodes` et section de comparaison | Front et US4 commités ensemble le 18/11 à 0 h 51 (`be6949d`, `45c6210`) : front resté une journée hors de Git, risque relevé en revue |
 | J4 · mer. 18 – jeu. 19/11 | Comparaison, Docker | Revue de nommage (`a6f307b`), Docker Compose + Caddy vérifiés en local (`ff23b1b`), axes factorisés (`3b9a67f`) | Docker retardé par un blocage du démon Docker local |
-| J5 · ven. 20/11 | Dossier, préparation de l'oral | Dossier de conception, simulation d'oral | — |
+| J5 · ven. 20/11 | Dossier, préparation de l'oral | Dossier de conception, simulation d'oral ; le 22/11, base indisponible gérée (503 + Réessayer) et tests du chargement | Points faibles repérés en relisant le projet, corrigés avant le rendu |
 
 ## Outils et suivi
 
@@ -197,11 +197,13 @@ flowchart LR
 |---|---|---|---|
 | Données (exigé) | `tests/test_transform.py` | Doublons, lignes invalides, valeurs contradictoires écartées, date du mois central | 3 |
 | Règle métier | `tests/test_episodes.py` | 5 saisons minimum, saison manquante qui coupe un épisode, épisode en cours, pic La Niña | 5 |
+| Chargement | `tests/test_load.py` | Insertion, réimport sans doublon, valeur révisée mise à jour et tracée | 2 |
 | API (exigé) | `tests/test_api.py`, `test_api_episodes.py` | Période valide → 200 ; à l'envers ou date invalide → 422 ; indice sans import → 404 ; phase inconnue → 422 | 6 |
-| Front (exigé) | `App.test.tsx` | Changer la période rappelle l'API et met à jour les valeurs affichées | 1 |
+| API (panne) | `test_api_database_unavailable.py` | Base injoignable → 503 avec message ; `/health` reste à 200 | 1 |
+| Front (exigé) | `App.test.tsx` | Changer la période rappelle l'API et met à jour les valeurs ; erreur affichée puis « Réessayer » | 2 |
 | Front (logique) | `episodeComparison.test.ts`, `chartAxis.test.ts` | Texte d'interprétation, graduations de l'axe | 5 |
 
-**Total : 14 tests Python et 6 tests front, tous verts.** Les tests d'API tournent sur une **base séparée** (`enso_test`) remplie avec les **vraies valeurs NOAA de 1997** ; la base de développement n'est jamais touchée. Pour les corrections, on a vérifié que **le test échoue quand on retire le correctif**, puis passe quand on le remet.
+**Total : 17 tests Python et 7 tests front, tous verts.** Les tests d'API tournent sur une **base séparée** (`enso_test`) remplie avec les **vraies valeurs NOAA de 1997** ; la base de développement n'est jamais touchée. Pour les corrections, on a vérifié que **le test échoue quand on retire le correctif**, puis passe quand on le remet.
 
 ## Vérifications UX et accessibilité
 
@@ -228,6 +230,7 @@ Volume faible (921 lignes) : une requête indexée par période. L'import charge
 | Valeur révisée par la NOAA | Mise à jour, import tracé | `load.py` |
 | Erreur pendant l'import | Transaction annulée : base inchangée | `etl/__main__.py` |
 | Demande invalide / aucune donnée | 422 / 404 avec un message explicite (jamais de 500) | API |
+| Base arrêtée ou injoignable | 503 « Base de données indisponible », sans détail technique ; bouton « Réessayer » | API + front |
 
 # 7. Déploiement proposé
 
@@ -281,7 +284,7 @@ Variables dans `.env` (jamais commité) : `POSTGRES_*` avec un mot de passe long
 | Restauration | `docker compose exec -T db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" "$POSTGRES_DB"' < sauvegarde.sql` (testée sur une base temporaire) |
 | Journaux / supervision | `docker compose logs -f api`, `docker compose ps` (états *healthy*), surveillance externe de `/api/v1/health` |
 | Retour arrière | `git checkout <version précédente>` puis `up -d --build` ; restauration de la sauvegarde si une migration a modifié les données |
-| Panne | Conteneur arrêté : ajouter `restart: unless-stopped` sur le VPS pour une relance automatique ; serveur perdu : nouveau VPS + dépôt + dernière sauvegarde |
+| Panne | Base arrêtée : l'API répond 503 et le site propose « Réessayer » ; ajouter `restart: unless-stopped` sur le VPS ; serveur perdu : nouveau VPS + dépôt + dernière sauvegarde |
 
 **Limites** : migrations au démarrage (à revoir avec plusieurs instances de l'API) ; conteneur Caddy en root (image officielle, ports 80/443) ; versions d'images non figées par empreinte ; pas d'intégration continue ; Swagger charge ses scripts depuis un CDN.
 

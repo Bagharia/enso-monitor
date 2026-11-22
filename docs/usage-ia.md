@@ -338,3 +338,32 @@ Décisions d'Alexis sur les points relevés par l'assistant, appliquées et vér
   921 inchangées » sans reconstruire d'image, en `appuser` ; `tests/` absent de `/app`.
   Sauvegarde puis restauration testées dans une base temporaire (supprimée ensuite) :
   sans erreur, deux fois de suite.
+
+## Session du 22/11/2026 — rendu : commits, dossier, base indisponible
+
+- Préparation des commits du rendu (`git add` explicites, jamais `git add .`) ; vérifié avant
+  chaque commit que `CLAUDE.md` et `.env` sont ignorés par Git. Commits lancés par Alexis.
+- `docs/regles-ia.md` : copie de `CLAUDE.md`, pour que le jury puisse lire les règles données à
+  l'assistant (`CLAUDE.md` reste local et ignoré par Git). Copie resynchronisée en fin de session.
+- Contrôle du dossier de conception avant commit : PDF rendu page par page, chiffres recoupés avec
+  `RONI.ascii.txt` (durées, pics, 921 valeurs) et avec le code (Caddyfile, contraintes SQL,
+  commits cités). Relevé par l'assistant et corrigé par Alexis : une page blanche en fin de PDF
+  (15 pages), un renvoi « détail en section 5 » qui ne couvrait qu'une correction sur quatre.
+- README réécrit par l'assistant à partir du code et du dossier : fonctionnalités, choix sur les
+  données, routes, tests, structure, limites ; la section « Usage de l'IA », restée vide, est
+  remplie à partir du bilan du dossier.
+- **Base indisponible → 503 + « Réessayer », et tests de `load.py`.** Amélioration identifiée par
+  Alexis en comparant avec un autre projet du même sujet ; **aucun code repris** de ce projet.
+  Code fourni par Alexis (`ameliorations-503-tests.zip`, écrit sur la version `3b9a67f`) ;
+  l'assistant a vérifié qu'aucun des 8 fichiers n'avait changé localement depuis `3b9a67f`
+  (pas de conflit), relu chaque modification, puis copié les fichiers.
+  - `app/main.py` : `OperationalError` → 503 avec un message en français, sans détail technique.
+  - Front : bouton « Réessayer » ; `useObservations` / `useEpisodes` renvoient `{ state, retry }`.
+  - Vérifié par l'assistant que `etl/load.py` ne fait que des `flush()` (le `commit()` est dans
+    `etl/__main__.py`) : le `rollback()` de `test_load.py` annule donc bien tout.
+  - Vérifié que le test 503 **échoue** quand le gestionnaire d'erreur est désactivé, puis passe.
+- Vérifications (sorties réelles) : `pytest -v` → 17 passed ; `npm test` → 7 passed ;
+  `npx tsc -b` sans erreur ; `npm run lint` code 0 ; `npm run build` OK (avertissement connu,
+  JS de 601 kB). Docker : `docker compose up -d --build` → `api` healthy ; `docker compose stop db`
+  → `/api/v1/observations` et `/api/v1/episodes` répondent 503 « Base de données indisponible : … »,
+  `/api/v1/health` 200 ; `docker compose start db` → 200 avec les valeurs, sans redémarrer l'API.
