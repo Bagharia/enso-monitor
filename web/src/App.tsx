@@ -17,8 +17,8 @@ const LATEST_YEAR = new Date().getFullYear();
 
 export function App() {
   const [period, setPeriod] = useState<Period>({ startYear: FIRST_YEAR, endYear: LATEST_YEAR });
-  const observationsState = useObservations(period);
-  const episodesState = useEpisodes("el_nino");
+  const { state: observationsState, retry: retryObservations } = useObservations(period);
+  const { state: episodesState, retry: retryEpisodes } = useEpisodes("el_nino");
 
   return (
     <main>
@@ -39,9 +39,12 @@ export function App() {
         {observationsState.status === "loading" && <p>Chargement des données…</p>}
 
         {observationsState.status === "error" && (
-          <p role="alert" className="error">
-            {observationsState.message}
-          </p>
+          <div role="alert" className="error">
+            <p>{observationsState.message}</p>
+            <button type="button" onClick={retryObservations}>
+              Réessayer
+            </button>
+          </div>
         )}
 
         {observationsState.status === "success" &&
@@ -69,9 +72,12 @@ export function App() {
       <div aria-live="polite" aria-busy={episodesState.status === "loading"}>
         {episodesState.status === "loading" && <p>Chargement des épisodes…</p>}
         {episodesState.status === "error" && (
-          <p role="alert" className="error">
-            {episodesState.message}
-          </p>
+          <div role="alert" className="error">
+            <p>{episodesState.message}</p>
+            <button type="button" onClick={retryEpisodes}>
+              Réessayer
+            </button>
+          </div>
         )}
         {episodesState.status === "success" && (
           <EpisodeComparison episodeList={episodesState.data} />
