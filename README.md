@@ -116,6 +116,7 @@ npm run build                                 # build de production dans web/dis
 | `chartAxis.test.ts` | Graduations communes aux deux courbes |
 
 Résultat au 22/11/2026 : `pytest` **17 passed**, `npm test` **7 passed** ; `tsc`, lint et build OK.
+Sorties complètes des deux suites : [docs/preuves-tests.md](docs/preuves-tests.md).
 
 Les tests d'API et de chargement utilisent une base séparée `enso_test`, créée et remplie
 automatiquement (année 1997 du fichier NOAA) : la base de développement n'est jamais modifiée.
