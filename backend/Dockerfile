@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Sécurité : le code ne tourne pas en root dans le conteneur.
+# Sécurité : l'API et l'ETL ne tournent pas en root dans leur conteneur.
 RUN useradd --create-home appuser
 USER appuser
 

@@ -1,12 +1,14 @@
 # Caddy : porte d'entrée unique du site.
-# - /api/*  -> transmis à l'API (service "api" du compose, port 8000)
+# - /api/*, /docs*, /openapi.json -> transmis à l'API (service "api" du compose, port 8000)
+#   (/docs : documentation Swagger de l'API, qui charge /openapi.json)
 # - le reste -> fichiers du front (dossier /srv)
 # SITE_ADDRESS vaut ":80" en local (HTTP) ou un nom de domaine sur VPS (HTTPS automatique).
 
 {$SITE_ADDRESS::80} {
 	encode gzip
 
-	handle /api/* {
+	@api path /api/* /docs* /openapi.json
+	handle @api {
 		reverse_proxy api:8000
 	}
 
@@ -20,5 +22,8 @@
 		X-Content-Type-Options nosniff
 		X-Frame-Options DENY
 		Referrer-Policy strict-origin-when-cross-origin
+		# HTTPS seulement pendant 1 an. Ignoré par les navigateurs tant que le site est en HTTP
+		# (local) ; pas de includeSubDomains : il imposerait HTTPS à tout le domaine.
+		Strict-Transport-Security "max-age=31536000"
 	}
 }

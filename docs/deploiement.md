@@ -52,13 +52,28 @@ Le site est alors sur http://localhost:8080 (port `HTTP_PORT`, 8080 par défaut)
 | Voir l'état des services | `docker compose ps` |
 | Lire les logs de l'API | `docker compose logs -f api` |
 | Mettre à jour le code | `git pull && docker compose up -d --build` |
-| Importer un nouveau fichier NOAA | remplacer `backend/data/raw/RONI.ascii.txt`, adapter `--extracted-on`, puis `docker compose run --rm etl` |
-| Sauvegarder la base | `docker compose exec db pg_dump -U enso enso > sauvegarde.sql` |
+| Importer un nouveau fichier NOAA | remplacer `backend/data/raw/RONI.ascii.txt`, mettre sa date de téléchargement dans `ETL_EXTRACTED_ON` (`.env`), puis `docker compose run --rm etl` |
+| Sauvegarder la base | `docker compose exec -T db sh -c 'pg_dump --clean --if-exists -U "$POSTGRES_USER" "$POSTGRES_DB"' > sauvegarde.sql` |
+| Restaurer une sauvegarde | `docker compose exec -T db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < sauvegarde.sql` |
+
+Les variables `POSTGRES_*` sont celles du conteneur `db` (donc du `.env`) : aucun identifiant
+n'est écrit dans la commande. `-T` : pas de terminal, le flux SQL passe tel quel.
+`--clean --if-exists` : la sauvegarde supprime puis recrée les tables, donc la restauration
+remplace les données existantes au lieu d'échouer sur des doublons.
 
 ## Limites connues
 
 - Pas d'intégration continue : les tests se lancent à la main (`pytest`, `npm test`).
 - Les migrations s'appliquent au démarrage de l'API : simple pour un seul serveur, à revoir
   si plusieurs instances de l'API démarraient en même temps.
-- L'image de l'API contient aussi les outils de test (pytest) : quelques Mo de plus, sans risque
-  connu, mais une image séparée « production » serait plus propre.
+- L'image de l'API installe aussi pytest et httpx (un seul `requirements.txt`), sans les tests
+  eux-mêmes (`tests/` exclu par `.dockerignore`) : quelques Mo inutiles en production. Séparer
+  les dépendances de test (`requirements-dev.txt`) serait plus propre.
+- Le conteneur `web` (Caddy) tourne en root : l'image officielle de Caddy est prévue ainsi,
+  car Caddy doit ouvrir les ports 80 et 443 (ports réservés sous Linux). L'API et l'ETL, eux,
+  tournent avec l'utilisateur `appuser`. Piste : lancer Caddy avec un utilisateur dédié et la
+  capacité `NET_BIND_SERVICE`, non faite pour garder l'image officielle telle quelle.
+- Versions d'images flottantes (`postgres:17-alpine`, `python:3.12-slim`, `node:24-alpine`,
+  `caddy:2-alpine`) : deux builds à des dates différentes peuvent utiliser des versions
+  mineures différentes. Fixer un digest (`@sha256:...`) rendrait le build reproductible, au prix
+  de mises à jour de sécurité manuelles.
