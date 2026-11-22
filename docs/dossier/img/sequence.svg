@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 450" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a1a1a"/></marker>
+  </defs>
+  <!-- participants -->
+  <g fill="#e6eef7" stroke="#123f73" stroke-width="1.2">
+    <rect x="15" y="10" width="90" height="30"/><rect x="140" y="10" width="130" height="30"/><rect x="305" y="10" width="90" height="30"/>
+    <rect x="440" y="10" width="120" height="30"/><rect x="615" y="10" width="110" height="30"/>
+  </g>
+  <g font-weight="bold" text-anchor="middle">
+    <text x="60" y="30">Visiteur</text><text x="205" y="24">React</text><text x="205" y="36" font-size="10" font-weight="normal">useObservations</text>
+    <text x="350" y="30">Caddy</text><text x="500" y="24">FastAPI</text><text x="500" y="36" font-size="10" font-weight="normal">/api/v1/observations</text><text x="670" y="30">PostgreSQL</text>
+  </g>
+  <g stroke="#999" stroke-dasharray="4 4"><line x1="60" y1="40" x2="60" y2="440"/><line x1="205" y1="40" x2="205" y2="440"/>
+    <line x1="350" y1="40" x2="350" y2="440"/><line x1="500" y1="40" x2="500" y2="440"/><line x1="670" y1="40" x2="670" y2="440"/></g>
+  <!-- messages -->
+  <g stroke="#1a1a1a" stroke-width="1.2" fill="none">
+    <line x1="60" y1="70" x2="203" y2="70" marker-end="url(#a)"/>
+    <path d="M205,92 h40 v16 h-38" marker-end="url(#a)"/>
+    <line x1="205" y1="138" x2="348" y2="138" marker-end="url(#a)"/>
+    <line x1="350" y1="162" x2="498" y2="162" marker-end="url(#a)"/>
+    <path d="M500,184 h40 v16 h-38" marker-end="url(#a)"/>
+  </g>
+  <g>
+    <text x="68" y="64">1. choisit 1997 → 1998</text>
+    <text x="252" y="104">2. annule la requête précédente</text>
+    <text x="212" y="132">3. GET ?start=1997-01-01&amp;end=1998-12-31</text>
+    <text x="358" y="156">4. transmet (réseau interne)</text>
+    <text x="547" y="196">5. valide les dates, start ≤ end</text>
+  </g>
+  <!-- fragment alt -->
+  <rect x="25" y="215" width="720" height="225" fill="none" stroke="#123f73"/>
+  <path d="M25,215 h44 l8,8 v10 h-52 z" fill="#e6eef7" stroke="#123f73"/><text x="33" y="229" font-weight="bold">alt</text>
+  <g stroke="#123f73" stroke-dasharray="6 4"><line x1="25" y1="292" x2="745" y2="292"/><line x1="25" y1="350" x2="745" y2="350"/></g>
+  <g fill="#123f73" font-style="italic" font-size="11.5">
+    <text x="90" y="230">[date invalide ou période à l'envers]</text><text x="90" y="306">[aucune donnée importée]</text><text x="90" y="364">[cas nominal]</text>
+  </g>
+  <g stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-dasharray="6 3">
+    <line x1="500" y1="252" x2="207" y2="252" marker-end="url(#o)"/><line x1="205" y1="276" x2="62" y2="276" marker-end="url(#o)"/>
+    <line x1="500" y1="326" x2="207" y2="326" marker-end="url(#o)"/>
+    <line x1="670" y1="398" x2="502" y2="398" marker-end="url(#o)"/><line x1="500" y1="418" x2="207" y2="418" marker-end="url(#o)"/>
+    <line x1="205" y1="436" x2="62" y2="436" marker-end="url(#o)"/>
+  </g>
+  <line x1="500" y1="378" x2="668" y2="378" stroke="#1a1a1a" stroke-width="1.2" marker-end="url(#a)"/>
+  <g>
+    <text x="270" y="246">422 + message explicite</text><text x="70" y="270">message d'erreur (role=alert)</text>
+    <text x="240" y="320">404 « lancer d'abord l'import »</text>
+    <text x="512" y="372">SELECT paramétré, trié par date</text><text x="545" y="392">24 observations</text>
+    <text x="230" y="412">200 JSON : valeurs, unité, source</text><text x="70" y="430">courbe, résumé, tableau, source</text>
+  </g>
+</svg>

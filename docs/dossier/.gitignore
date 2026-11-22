@@ -1,0 +1,6 @@
+node_modules/
+dossier.html
+dossier.pdf
+preview/
+package.json
+package-lock.json

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker></defs>
+  <!-- VPS -->
+  <rect x="120" y="10" width="520" height="280" rx="6" fill="#f7f9fc" stroke="#123f73" stroke-width="1.5"/>
+  <text x="132" y="30" font-weight="bold" fill="#123f73">VPS Linux · 2 vCPU · 4 Go RAM · SSD 40 Go</text>
+  <!-- réseau interne -->
+  <rect x="250" y="44" width="375" height="160" rx="4" fill="#fff" stroke="#1f5fa8" stroke-dasharray="6 4"/>
+  <text x="262" y="62" fill="#1f5fa8" font-size="11.5">Réseau Docker interne (non joignable depuis Internet)</text>
+  <!-- noeuds -->
+  <g stroke="#333" fill="#e6eef7">
+    <rect x="10" y="110" width="90" height="36" rx="4"/>
+    <polygon points="140,128 152,108 210,108 222,128 210,148 152,148"/>
+    <rect x="265" y="102" width="110" height="52" rx="4"/>
+    <rect x="410" y="78" width="95" height="44" rx="4"/>
+    <rect x="410" y="142" width="95" height="44" rx="4"/>
+  </g>
+  <g stroke="#333" fill="#fff">
+    <path d="M535,96 v52 a32,8 0 0 0 64,0 v-52"/><ellipse cx="567" cy="96" rx="32" ry="8"/>
+    <path d="M294,224 v50 a48,8 0 0 0 96,0 v-50"/><ellipse cx="342" cy="224" rx="48" ry="8"/>
+    <path d="M532,224 v46 a42,8 0 0 0 84,0 v-46"/><ellipse cx="574" cy="224" rx="42" ry="8"/>
+  </g>
+  <g text-anchor="middle">
+    <text x="55" y="132">Navigateur</text>
+    <text x="181" y="125">Pare-feu</text><text x="181" y="139" font-size="11">22 · 80 · 443</text>
+    <text x="320" y="122" font-weight="bold">web : Caddy</text><text x="320" y="137" font-size="11">front compilé, HTTPS</text>
+    <text x="457" y="96" font-weight="bold">api : FastAPI</text><text x="457" y="111" font-size="11">non-root</text>
+    <text x="457" y="158" font-weight="bold">etl</text><text x="457" y="171" font-size="10.5">à la demande</text><text x="457" y="183" font-size="10.5">non-root</text>
+    <text x="567" y="122" font-weight="bold">db</text><text x="567" y="137" font-size="11">PostgreSQL</text>
+    <text x="342" y="248" font-size="11">volumes</text><text x="342" y="261" font-size="10.5">caddy_data,</text><text x="342" y="273" font-size="10.5">caddy_config</text>
+    <text x="574" y="250" font-size="11">volume</text><text x="574" y="263" font-size="11">pgdata</text>
+  </g>
+  <g stroke="#333" stroke-width="1.3" fill="none">
+    <line x1="100" y1="128" x2="139" y2="128" marker-end="url(#a)"/>
+    <line x1="222" y1="128" x2="263" y2="128" marker-end="url(#a)"/>
+    <line x1="375" y1="116" x2="408" y2="104" marker-end="url(#a)"/>
+    <line x1="505" y1="100" x2="533" y2="110" marker-end="url(#a)"/>
+    <line x1="505" y1="164" x2="533" y2="146" marker-end="url(#a)"/>
+    <line x1="320" y1="154" x2="335" y2="216" stroke-dasharray="3 3"/>
+    <line x1="567" y1="156" x2="572" y2="216" stroke-dasharray="3 3"/>
+    <path d="M599,128 C680,128 700,200 700,226" stroke-dasharray="5 4" marker-end="url(#a)"/>
+  </g>
+  <g font-size="11" fill="#444">
+    <text x="102" y="117" font-size="10">HTTPS</text><text x="318" y="96">/api/*, /docs</text>
+  </g>
+  <g stroke="#333" fill="#fff"><path d="M660,232 v40 a40,8 0 0 0 80,0 v-40"/><ellipse cx="700" cy="232" rx="40" ry="8"/></g>
+  <g text-anchor="middle" font-size="11"><text x="700" y="254">Sauvegardes</text><text x="700" y="267">hors serveur</text></g>
+  <text x="706" y="200" font-size="11" fill="#444">pg_dump</text>
+</svg>

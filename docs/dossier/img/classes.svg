@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 345" font-family="Arial, sans-serif" font-size="12.5" fill="#1a1a1a">
+  <g fill="#fff" stroke="#123f73" stroke-width="1.4">
+    <rect x="20" y="15" width="230" height="112"/><rect x="510" y="15" width="230" height="96"/>
+    <rect x="20" y="190" width="230" height="128"/><rect x="510" y="168" width="230" height="150"/>
+  </g>
+  <g fill="#e6eef7"><rect x="21" y="16" width="228" height="24"/><rect x="511" y="16" width="228" height="24"/>
+    <rect x="21" y="191" width="228" height="24"/><rect x="511" y="169" width="228" height="24"/></g>
+  <g font-weight="bold" text-anchor="middle">
+    <text x="135" y="33">ClimateIndex (Indice)</text><text x="625" y="33">Source</text>
+    <text x="135" y="208">Observation</text><text x="625" y="186">ImportRun (Import)</text>
+  </g>
+  <g>
+    <text x="30" y="58">id : int</text><text x="30" y="76">code : str  {unique}  « RONI »</text>
+    <text x="30" y="94">name : str</text><text x="30" y="112">unit : str  « °C »</text>
+    <text x="520" y="58">id : int</text><text x="520" y="76">provider : str</text><text x="520" y="94">url : str  {unique}</text>
+    <text x="30" y="233">id : int</text><text x="30" y="251">season : str  « DJF »…</text><text x="30" y="269">year : int</text>
+    <text x="30" y="287">period_date : date</text><text x="30" y="305">value : Decimal(4,2)  (°C)</text>
+    <text x="520" y="211">id : int</text><text x="520" y="229">extracted_on : date</text><text x="520" y="247">file_sha256 : str</text>
+    <text x="520" y="265">started_at : datetime</text><text x="520" y="283">rows_read, rows_inserted,</text><text x="520" y="301">rows_updated, rows_unchanged : int</text>
+  </g>
+  <g stroke="#1a1a1a" stroke-width="1.2" fill="none">
+    <line x1="250" y1="62" x2="510" y2="62"/><line x1="625" y1="111" x2="625" y2="168"/>
+    <line x1="135" y1="127" x2="135" y2="190"/><line x1="510" y1="250" x2="250" y2="250"/>
+  </g>
+  <g font-size="12">
+    <text x="258" y="56">1</text><text x="478" y="56">1..*</text><text x="380" y="78" text-anchor="middle" font-style="italic">est publié par ▸</text>
+    <text x="632" y="126">1</text><text x="632" y="162">0..*</text><text x="640" y="144" font-style="italic">est importée par ▾</text>
+    <text x="142" y="142">1</text><text x="142" y="184">0..*</text><text x="150" y="163" font-style="italic">mesure ▾</text>
+    <text x="490" y="244">1</text><text x="258" y="244">0..*</text><text x="380" y="268" text-anchor="middle" font-style="italic">◂ a écrit en dernier (provenance)</text>
+  </g>
+  <text x="380" y="338" text-anchor="middle" font-size="11.5" fill="#555">Contrainte : une seule Observation par (indice, année, saison)</text>
+</svg>

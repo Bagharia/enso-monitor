@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 430" font-family="Arial, sans-serif" font-size="11" fill="#333">
+  <rect x="1" y="1" width="638" height="428" fill="#fff" stroke="#999"/>
+  <text x="16" y="24" font-size="15" font-weight="bold">ENSO Monitor</text>
+  <text x="16" y="40">Phrase d'introduction (indice NOAA RONI)</text>
+  <!-- filtre -->
+  <rect x="16" y="50" width="300" height="34" fill="none" stroke="#666" stroke-dasharray="4 3"/>
+  <text x="24" y="71">Période : De [ année ▾ ]  à [ année ▾ ]</text>
+  <!-- courbe -->
+  <rect x="16" y="94" width="300" height="130" fill="#f4f4f4" stroke="#666"/>
+  <polyline points="24,170 50,140 70,180 95,120 120,175 150,110 175,190 205,150 230,125 260,175 290,135 308,160" fill="none" stroke="#333" stroke-width="2"/>
+  <line x1="16" y1="140" x2="316" y2="140" stroke="#b4232a" stroke-dasharray="5 4"/>
+  <line x1="16" y1="180" x2="316" y2="180" stroke="#1f5fa8" stroke-dasharray="5 4"/>
+  <text x="24" y="108">Courbe RONI + seuils ±0,5 °C</text>
+  <text x="16" y="240">Légende · résumé texte (période, max, min)</text>
+  <text x="16" y="256">▸ Tableau des valeurs (dépliable)</text>
+  <text x="16" y="272">Source NOAA · date d'extraction</text>
+  <!-- états -->
+  <rect x="16" y="284" width="300" height="56" fill="none" stroke="#999" stroke-dasharray="2 2"/>
+  <text x="24" y="302">États prévus à la place de la courbe :</text>
+  <text x="24" y="318">« Chargement… » · message d'erreur (role=alert)</text>
+  <text x="24" y="334">« Aucune valeur sur cette période »</text>
+  <!-- comparaison -->
+  <text x="336" y="24" font-size="13" font-weight="bold">Comparer deux épisodes El Niño</text>
+  <rect x="336" y="34" width="288" height="34" fill="none" stroke="#666" stroke-dasharray="4 3"/>
+  <text x="344" y="55">Épisode A [ ▾ ]   Épisode B [ ▾ ]</text>
+  <rect x="336" y="78" width="288" height="54" fill="none" stroke="#666"/>
+  <text x="344" y="94">Tableau : début · fin · durée · pic</text>
+  <line x1="336" y1="100" x2="624" y2="100" stroke="#ccc"/>
+  <text x="344" y="114">A : …</text><text x="344" y="127">B : …</text>
+  <rect x="336" y="142" width="288" height="110" fill="#f4f4f4" stroke="#666"/>
+  <polyline points="344,230 380,190 420,165 460,160 500,185 540,230" fill="none" stroke="#b4232a" stroke-width="2"/>
+  <polyline points="344,240 390,215 440,185 490,165 530,170 580,200 614,238" fill="none" stroke="#1f5fa8" stroke-width="2"/>
+  <text x="344" y="158">Courbes alignées sur la 1re saison</text>
+  <text x="336" y="270" font-weight="bold">Ce que montrent les mesures</text>
+  <text x="336" y="286">• pics · durées · saison du pic</text>
+  <text x="336" y="306" font-weight="bold">Limites de cette comparaison</text>
+  <text x="336" y="322">• règle et précision · pas les conséquences</text>
+  <text x="336" y="338">• deux épisodes ≠ une tendance</text>
+  <text x="16" y="372" fill="#666">Mobile : les deux colonnes s'empilent (filtre → courbe → comparaison),</text>
+  <text x="16" y="388" fill="#666">les tableaux défilent horizontalement si besoin, le focus clavier reste visible.</text>
+  <text x="16" y="414" fill="#666" font-style="italic">Wireframe basse fidélité : organisation de la page sur grand écran.</text>
+</svg>

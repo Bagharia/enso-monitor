@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 350" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">
+  <g fill="#fff" stroke="#123f73" stroke-width="1.3">
+    <rect x="15" y="12" width="250" height="100"/><rect x="495" y="12" width="250" height="100"/>
+    <rect x="15" y="160" width="270" height="140"/><rect x="495" y="160" width="250" height="140"/>
+  </g>
+  <g fill="#e6eef7"><rect x="16" y="13" width="248" height="22"/><rect x="496" y="13" width="248" height="22"/>
+    <rect x="16" y="161" width="268" height="22"/><rect x="496" y="161" width="248" height="22"/></g>
+  <g font-weight="bold" font-family="DejaVu Sans Mono, monospace"><text x="24" y="29">climate_index</text><text x="504" y="29">source</text>
+    <text x="24" y="177">observation</text><text x="504" y="177">import_run</text></g>
+  <g font-family="DejaVu Sans Mono, monospace" font-size="11">
+    <text x="24" y="52">PK id</text><text x="24" y="68">UK code varchar(16)</text><text x="24" y="84">   name varchar(128)</text><text x="24" y="100">   unit varchar(16)</text>
+    <text x="504" y="52">PK id</text><text x="504" y="68">FK climate_index_id</text><text x="504" y="84">   provider varchar(128)</text><text x="504" y="100">UK url varchar(512)</text>
+    <text x="24" y="200">PK id</text><text x="24" y="216">FK climate_index_id ┐</text><text x="24" y="232">   season varchar(3) ├ UNIQUE</text>
+    <text x="24" y="248">   year integer      ┘</text><text x="24" y="264">   period_date date</text><text x="24" y="280">   value numeric(4,2)</text><text x="24" y="296">FK last_import_run_id</text>
+    <text x="504" y="200">PK id</text><text x="504" y="216">FK source_id</text><text x="504" y="232">   extracted_on date</text><text x="504" y="248">   file_sha256 varchar(64)</text>
+    <text x="504" y="264">   started_at timestamptz</text><text x="504" y="280">   rows_read … rows_unchanged</text><text x="504" y="296">   (compteurs, integer)</text>
+  </g>
+  <g stroke="#1a1a1a" stroke-width="1.1" fill="none">
+    <path d="M265,62 L495,62"/><path d="M620,112 L620,160"/><path d="M140,112 L140,160"/><path d="M285,292 L495,292"/>
+  </g>
+  <g font-size="10.5" fill="#444" text-anchor="middle">
+    <text x="380" y="56">source.climate_index_id</text><text x="380" y="78">→ climate_index.id</text>
+    <text x="300" y="132">observation.climate_index_id → climate_index.id</text>
+    <text x="690" y="132">import_run.source_id</text><text x="690" y="146">→ source.id</text>
+    <text x="390" y="270">observation.last_import_run_id</text><text x="390" y="284">→ import_run.id</text>
+  </g>
+  <g font-size="11" fill="#123f73">
+    <text x="15" y="322">Contraintes : CHECK season IN ('DJF', …, 'NDJ') · CHECK value BETWEEN -5 AND 5 · CHECK year BETWEEN 1950 AND 2100</text>
+    <text x="15" y="340">Index : (climate_index_id, period_date) pour le filtre par période · UNIQUE (climate_index_id, year, season) anti-doublon</text>
+  </g>
+</svg>
